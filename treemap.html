@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+  <script src="https://cdn.anychart.com/js/8.9.0/anychart-bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.anychart.com/css/8.9.0/anychart-ui.min.css" />
+  <style>
+    html, body, #container {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script type="text/javascript">
+    anychart.onDocumentReady(function () {
+      // Path to the CSV file
+      var csvFilePath = 'HistoricalData_1715332591456.csv'; 
+      fetch(csvFilePath)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+          }
+          return response.text();
+        })
+        .then(csvText => {
+          console.log('CSV Data Loaded:', csvText);
+
+          var data = anychart.data.parseCsv(csvText, {
+            columnsSeparator: ',',
+            ignoreFirstRow: true
+          });
+
+          console.log('Parsed Data:', data);
+
+          var heatmapData = [];
+          data.forEach((row, index) => {
+            var category = row[0];
+            for (var i = 1; i < row.length; i++) {
+              heatmapData.push([category, 'value' + i, parseFloat(row[i])]);
+            }
+          });
+
+          console.log('Heatmap Data:', heatmapData);
+
+          var chart = anychart.heatMap(heatmapData);
+
+          chart.title("Heatmap from CSV Data");
+
+          chart.xAxis().title('Category');
+
+          chart.yAxis().title('Values');
+
+          
+          chart.colorScale(anychart.scales.linearColor('#FF0000', '#00FF00'));
+
+          chart.container('container');
+
+          
+          chart.draw();
+        })
+        .catch(error => {
+          console.error('Error loading or parsing CSV file:', error);
+        });
+    });
+  </script>
+</body>
+</html>
